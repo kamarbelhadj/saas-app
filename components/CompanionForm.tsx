@@ -24,7 +24,7 @@ import { minLength } from "zod/v4-mini";
 import { Button } from "./ui/button";
 import { subjects } from "@/constants";
 import { Textarea } from "./ui/textarea";
-import { CreateCompanion } from "@/lib/actions/companions.actions";
+import { createCompanion } from "@/lib/actions/companions.actions";
 import { redirect } from "next/navigation";
 import { log } from "node:console";
 const formSchema = z.object({
@@ -50,7 +50,7 @@ const CompanionForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const comapnion = await CreateCompanion(values);
+    const comapnion = await createCompanion(values);
     if (comapnion) {
       redirect("/companions/" + comapnion.id);
     } else {

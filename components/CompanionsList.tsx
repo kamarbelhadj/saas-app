@@ -12,13 +12,13 @@ import {
 import { cn, getSubjectColor } from "@/lib/utils";
 import Link from "next/link";
 interface CompanionListPropos {
-  tiltle: string;
+  title: string;
   companions?: Companion[];
   classeNames?: string;
 }
 
 function CompanionsList({
-  tiltle,
+  title,
   companions,
   classeNames,
 }: CompanionListPropos) {
