@@ -24,7 +24,7 @@ function CompanionsList({
 }: CompanionListPropos) {
   return (
     <article className={cn("companion-list", classeNames)}>
-      <h2 className="font-bold text-3xl ">Recent Session</h2>
+      <h2 className="font-bold text-3xl ">{title}</h2>
       <Table>
         <TableHeader>
           <TableRow>
