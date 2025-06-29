@@ -18,28 +18,62 @@ export const createCompanion = async (formData: CreateCompanion) => {
     return data[0];
 }
 
-export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }: GetAllCompanions) => {
-    const supabase = createSupabaseClient();
 
-    let query = supabase.from('companions').select();
+export const getAllCompanions = async ({
+  limit = 10,
+  page = 1,
+  subject,
+  topic,
+}: GetAllCompanions) => {
+  const supabase = createSupabaseClient();
+  const { userId } = await auth(); // Récupère l'utilisateur connecté
 
-    if(subject && topic) {
-        query = query.ilike('subject', `%${subject}%`)
-            .or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`)
-    } else if(subject) {
-        query = query.ilike('subject', `%${subject}%`)
-    } else if(topic) {
-        query = query.or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`)
-    }
+  let query = supabase.from("companions").select("*");
 
-    query = query.range((page - 1) * limit, page * limit - 1);
+  // Appliquer les filtres
+  if (subject && topic) {
+    query = query
+      .ilike("subject", `%${subject}%`)
+      .or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`);
+  } else if (subject) {
+    query = query.ilike("subject", `%${subject}%`);
+  } else if (topic) {
+    query = query.or(`topic.ilike.%${topic}%,name.ilike.%${topic}%`);
+  }
 
-    const { data: companions, error } = await query;
+  // Pagination
+  query = query.range((page - 1) * limit, page * limit - 1);
 
-    if(error) throw new Error(error.message);
+  const { data: companions, error } = await query;
+  if (error) throw new Error(error.message);
 
-    return companions;
-}
+  if (!userId) {
+    // Si l'utilisateur n'est pas connecté, retourner sans "bookmarked"
+    return companions.map((companion) => ({
+      ...companion,
+      bookmarked: false,
+    }));
+  }
+
+  // Récupérer les bookmarks de l'utilisateur
+  const { data: bookmarksData, error: bookmarksError } = await supabase
+    .from("bookmarks")
+    .select("companion_id")
+    .eq("user_id", userId);
+
+  if (bookmarksError) throw new Error(bookmarksError.message);
+
+  const bookmarkedIds = new Set(bookmarksData.map((b) => b.companion_id));
+
+  // Ajouter la propriété bookmarked à chaque compagnon
+  const companionsWithBookmarks = companions.map((companion) => ({
+    ...companion,
+    bookmarked: bookmarkedIds.has(companion.id),
+  }));
+
+  return companionsWithBookmarks;
+};
+
 
 export const getCompanion = async (id: string) => {
     const supabase = createSupabaseClient();
@@ -152,7 +186,8 @@ export const addBookmark = async (companionId: string, path: string) => {
     user_id: userId,
   });
   if (error) {
-    throw new Error(error.message);
+    console.log("Erreur Supabase lors de l'ajout du bookmark :", error);
+  throw new Error(error.message);
   }
   // Revalidate the path to force a re-render of the page
 

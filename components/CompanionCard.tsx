@@ -1,8 +1,9 @@
 "use client";
-
+import { removeBookmark, addBookmark } from "@/lib/actions/companions.actions";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 interface CompanionCardProps {
   id: string;
@@ -21,15 +22,29 @@ const CompanionCard = ({
   subject,
   duration,
   color,
-  bookmarked,
+  bookmarked: initialBookmarked,
 }: CompanionCardProps) => {
   const pathname = usePathname();
+  const [bookmarked, setBookmarked] = useState(initialBookmarked);
+
+  const handleBookmark = async () => {
+    try {
+      if (bookmarked) {
+        await removeBookmark(id, pathname);
+      } else {
+        await addBookmark(id, pathname);
+      }
+      setBookmarked(!bookmarked);
+    } catch (error) {
+      console.error("Erreur lors du changement de bookmark :", error);
+    }
+  };
 
   return (
     <article className="companion-card" style={{ backgroundColor: color }}>
       <div className="flex justify-between items-center">
         <div className="subject-badge">{subject}</div>
-        <button className="companion-bookmark">
+        <button className="companion-bookmark" onClick={handleBookmark}>
           <Image
             src={
               bookmarked ? "/icons/bookmark-filled.svg" : "/icons/bookmark.svg"

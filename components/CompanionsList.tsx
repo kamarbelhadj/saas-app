@@ -1,5 +1,3 @@
-import React from "react";
-import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -11,26 +9,29 @@ import {
 } from "@/components/ui/table";
 import { cn, getSubjectColor } from "@/lib/utils";
 import Link from "next/link";
-interface CompanionListPropos {
+import Image from "next/image";
+
+interface CompanionsListProps {
   title: string;
   companions?: Companion[];
-  classeNames?: string;
+  classNames?: string;
 }
 
-function CompanionsList({
+const CompanionsList = ({
   title,
   companions,
-  classeNames,
-}: CompanionListPropos) {
+  classNames,
+}: CompanionsListProps) => {
   return (
-    <article className={cn("companion-list", classeNames)}>
-      <h2 className="font-bold text-3xl ">{title}</h2>
+    <article className={cn("companion-list", classNames)}>
+      <h2 className="font-bold text-3xl">{title}</h2>
+
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="text-lg w-2/3">Lessons</TableHead>
             <TableHead className="text-lg">Subject</TableHead>
-            <TableHead className="text-lg"> Duration</TableHead>
+            <TableHead className="text-lg text-right">Duration</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -40,7 +41,7 @@ function CompanionsList({
                 <Link href={`/companions/${id}`}>
                   <div className="flex items-center gap-2">
                     <div
-                      className="size-[72px] flex items-center justify-center rounded-lg max-md:hidden "
+                      className="size-[72px] flex items-center justify-center rounded-lg max-md:hidden"
                       style={{ backgroundColor: getSubjectColor(subject) }}
                     >
                       <Image
@@ -58,11 +59,11 @@ function CompanionsList({
                 </Link>
               </TableCell>
               <TableCell>
-                <div className="subject-badge w-fit max-md:hidden ">
+                <div className="subject-badge w-fit max-md:hidden">
                   {subject}
                 </div>
                 <div
-                  className="flex justify-center rounded-lg items-center w-fit p-2 md:hidden "
+                  className="flex items-center justify-center rounded-lg w-fit p-2 md:hidden"
                   style={{ backgroundColor: getSubjectColor(subject) }}
                 >
                   <Image
@@ -74,13 +75,13 @@ function CompanionsList({
                 </div>
               </TableCell>
               <TableCell>
-                <div className="flex items-center w-full gap-2 justify-end">
+                <div className="flex items-center gap-2 w-full justify-end">
                   <p className="text-2xl">
-                    {duration} <span className="max-md:hidden">minutes</span>
+                    {duration} <span className="max-md:hidden">mins</span>
                   </p>
                   <Image
                     src="/icons/clock.svg"
-                    alt="mins"
+                    alt="minutes"
                     width={14}
                     height={14}
                     className="md:hidden"
@@ -93,6 +94,6 @@ function CompanionsList({
       </Table>
     </article>
   );
-}
+};
 
 export default CompanionsList;
